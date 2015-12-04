@@ -15,3 +15,5 @@ type Writable interface {
     Write(io.Writer) error
 }
 ```
+
+Documentation: https://godoc.org/github.com/Eipifi/butils
