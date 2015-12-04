@@ -60,7 +60,7 @@ func WriteVarUint(w io.Writer, val uint64) (err error) {
 
 // Writes a slice of bytes into a writer, prefixing it with varuint length.
 func WriteVarBytes(w io.Writer, buf []byte, limit uint64) error {
-    if uint64(len(buf)) >= limit { return errLimitExceeded }
+    if uint64(len(buf)) >= limit { return ErrLimitExceeded }
     if err := WriteVarUint(w, uint64(len(buf))); err != nil { return err }
     return WriteFull(w, buf)
 }

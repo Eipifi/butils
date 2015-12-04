@@ -2,7 +2,6 @@ package butils
 import (
     "io"
     "reflect"
-    "errors"
 )
 
 // Reads a slice of Readable objects from a reader.
@@ -10,7 +9,7 @@ func ReadSlice(r io.Reader, limit uint64, slicePtr interface{}) (err error) {
 
     var num uint64
     if num, err = ReadVarUint(r); err != nil { return }
-    if num >= limit { return errLimitExceeded }
+    if num >= limit { return ErrLimitExceeded }
     var inum int = int(num)
 
     elementType := reflect.TypeOf(slicePtr).Elem().Elem()
@@ -19,7 +18,7 @@ func ReadSlice(r io.Reader, limit uint64, slicePtr interface{}) (err error) {
     for i := 0; i < inum; i += 1 {
         element := slice.Index(i).Addr().Interface()
         rd, ok := element.(Readable)
-        if !ok { return errors.New("Type " + slice.Index(i).String() + " does not implement Readable") }
+        if !ok { return ErrNotReadable }
         if err = rd.Read(r); err != nil { return }
     }
 
@@ -37,7 +36,7 @@ func WriteSlice(w io.Writer, limit uint64, aSlice interface{}) (err error) {
     for i := 0; i < inum; i += 1 {
         element := slice.Index(i).Addr().Interface()
         wr, ok := element.(Writable)
-        if !ok { return errors.New("Type " + slice.Index(i).String() + " does not implement Writable") }
+        if !ok { return ErrNotWritable }
         if err = wr.Write(w); err != nil { return }
     }
     return

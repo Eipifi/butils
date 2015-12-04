@@ -1,19 +1,16 @@
 package butils
 import (
     "bytes"
-    "errors"
     "io"
     "reflect"
 )
-
-var errLimitExceeded = errors.New("Length limit exceeded")
 
 // Makes a Readable object read from a slice of bytes.
 // Ensures that all bytes are read in the process.
 func ReadAllInto(r Readable, data []byte) (err error) {
     buf := bytes.NewBuffer(data)
     if err = r.Read(buf); err != nil { return }
-    if len(buf.Bytes()) > 0 { return errors.New("Unread bytes remaining") }
+    if len(buf.Bytes()) > 0 { return ErrUnreadBytes }
     return
 }
 
@@ -40,7 +37,7 @@ func WriteOptional(w io.Writer, target Writable) (err error) {
 func ReadOptional(r io.Reader, target Readable) (flag byte, err error) {
     if flag, err = ReadByte(r); err != nil { return }
     if flag == 0x00 { return }
-    if flag != 0x01 { return flag, errors.New("Invalid flag value") }
+    if flag != 0x01 { return flag, ErrFlagValue }
     return flag, target.Read(r)
 }
 

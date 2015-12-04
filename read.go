@@ -2,7 +2,6 @@ package butils
 import (
     "io"
     "encoding/binary"
-    "errors"
 )
 
 var byteOrder = binary.BigEndian
@@ -64,17 +63,17 @@ func ReadVarUint(r io.Reader) (uint64, error) {
         case 0xfd:
             v, err := ReadUint16(r)
             if err != nil { return 0, err }
-            if v < 0xfd { return 0, errors.New("Illegal VarUint format") }
+            if v < 0xfd { return 0, ErrVaruintFormat }
             return uint64(v), err
         case 0xfe:
             v, err := ReadUint32(r)
             if err != nil { return 0, err }
-            if v <= 0xffff { return 0, errors.New("Illegal VarUint format") }
+            if v <= 0xffff { return 0, ErrVaruintFormat }
             return uint64(v), err
         case 0xff:
             v, err := ReadUint64(r)
             if err != nil { return 0, err }
-            if v <= 0xffffffff { return 0, errors.New("Illegal VarUint format") }
+            if v <= 0xffffffff { return 0, ErrVaruintFormat }
             return v, err
     }
     return uint64(v), nil
@@ -84,7 +83,7 @@ func ReadVarUint(r io.Reader) (uint64, error) {
 func ReadVarBytes(r io.Reader, limit uint64) ([]byte, error) {
     l, err := ReadVarUint(r);
     if err != nil { return nil, err }
-    if l >= limit { return nil, errLimitExceeded }
+    if l >= limit { return nil, ErrLimitExceeded }
     return ReadAllocate(r, l)
 }
 
